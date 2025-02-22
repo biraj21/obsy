@@ -3,32 +3,19 @@ import type OpenAI from "openai";
 import { ObsyTrace } from "./index.js";
 
 export function createObservableOpenAI(client: OpenAI, trace: ObsyTrace): OpenAI {
-  return new Proxy(client, {
-    get(target, propKey) {
-      const original = target[propKey as keyof OpenAI];
+  const completionsOrig = client.chat.completions.create.bind(client.chat.completions);
 
-      // auto-instrument completions.create() and similar methods
-      if (propKey === "chat") {
-        return new Proxy(original as any, {
-          get: (nestedTarget, nestedPropKey) => {
-            if (nestedPropKey === "completions") {
-              return {
-                create: async (params: any) => {
-                  const isStream = params.stream ?? false;
-                  return trace.recordOpenAi(
-                    nestedTarget.completions.create(params),
-                    isStream ? "openai-chat-stream" : "openai-chat-completion",
-                    params
-                  );
-                },
-              };
-            }
-            return nestedTarget[nestedPropKey as keyof typeof nestedTarget];
-          },
-        });
-      }
-
-      return original;
+  // create a proxy for the completions method to replace the original
+  client.chat.completions.create = new Proxy(completionsOrig, {
+    apply: (target, thisArg, args: any) => {
+      const isStream = args[0].stream ?? false;
+      return trace.recordOpenAiCompletion(
+        target.apply(thisArg, args),
+        isStream ? "openai-chat-stream" : "openai-chat-completion",
+        args
+      );
     },
   });
+
+  return client;
 }

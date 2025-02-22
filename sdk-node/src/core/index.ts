@@ -11,6 +11,13 @@ export interface TraceContext {
   trace: ObsyTrace;
 }
 
+interface ObsyClientOptions {
+  apiKey: string;
+  projectId: string;
+  sinkUrl?: string;
+  sensitiveKeys?: Set<string>;
+}
+
 export class ObsyClient {
   readonly projectId: string;
   readonly sensitiveKeys: Set<string>;
@@ -22,12 +29,13 @@ export class ObsyClient {
    * @param apiKey Your Obsy API key
    * @param projectId Your Obsy project ID
    * @param sensitiveKeys Set of sensitive keys to redact from instrumented data. See `getDefaultSensitiveKeys()` method for default values.
+   * @param sinkUrl Optional URL to send traces to (defaults to api.obsy.com)
    */
-  constructor(apiKey: string, projectId: string, sensitiveKeys?: Set<string>) {
-    this.#apiKey = apiKey;
-    this.projectId = projectId;
-    this.#sinkUrl = `https://api.obsy.com/v1/projects/${projectId}/`;
-    this.sensitiveKeys = sensitiveKeys ?? this.getDefaultSensitiveKeys();
+  constructor(options: ObsyClientOptions) {
+    this.#apiKey = options.apiKey;
+    this.projectId = options.projectId;
+    this.#sinkUrl = options.sinkUrl ?? `https://api.obsy.com/v1/projects/${this.projectId}/`;
+    this.sensitiveKeys = options.sensitiveKeys ?? this.getDefaultSensitiveKeys();
     this.#storage = new AsyncLocalStorage();
   }
 
@@ -41,6 +49,26 @@ export class ObsyClient {
 
   getContext() {
     return this.#storage.getStore();
+  }
+
+  async sendTrace(trace: ObsyTrace) {
+    try {
+      const response = await fetch(`${this.#sinkUrl}traces`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.#apiKey}`,
+        },
+        body: JSON.stringify(trace.toJSON()),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error("Failed to send trace:", error);
+      }
+    } catch (error) {
+      console.error("Error sending trace:", error);
+    }
   }
 }
 
@@ -73,8 +101,8 @@ export class ObsyTrace {
     this.#metadata = metadata;
   }
 
-  async recordOpenAi<T>(arg: T, label: string, inputs: any): Promise<T> {
-    const operation = this.createOperation(label, "OPEN_AI", inputs);
+  async recordOpenAiCompletion<T>(arg: T, label: string, inputs: any): Promise<T> {
+    const operation = this.createOperation(label, "openai.chat.completions.create", inputs);
 
     const result = await arg;
 
@@ -143,9 +171,30 @@ export class ObsyTrace {
     }
   }
 
+  async recordPineconeQuery<T>(arg: T, label: string, inputs: any): Promise<T> {
+    const operation = this.createOperation(label, "pinecone.index.query", inputs);
+
+    try {
+      const result = await arg;
+      operation.result = result;
+      operation.endedAt = Date.now();
+      operation.duration = operation.endedAt - operation.startedAt;
+      return result;
+    } catch (err) {
+      operation.endedAt = Date.now();
+      operation.duration = operation.endedAt - operation.startedAt;
+      operation.error = err;
+      throw err;
+    } finally {
+      this.saveOperation(operation);
+    }
+  }
+
   end() {
     this.#endedAt = Date.now();
     this.#duration = this.#endedAt - this.#startedAt;
+    // Send trace to server
+    this.#client.sendTrace(this);
   }
 
   createOperation(label: string, type: OperationType, inputs: any) {
@@ -162,7 +211,7 @@ export class ObsyTrace {
   }
 
   async saveOperation(operation: Operation) {
-    this.#operations.push(operation);
+    console.log("birajlog saving operation");
   }
 
   runInContext<T>(fn: (...args: any[]) => T) {
@@ -175,9 +224,27 @@ export class ObsyTrace {
   getContext() {
     return this.#client.getContext();
   }
+
+  // Add method to serialize trace data
+  toJSON() {
+    const trace = {
+      id: this.#id,
+      startedAt: this.#startedAt,
+      endedAt: this.#endedAt,
+      duration: this.#duration,
+      operations: this.#operations,
+      request: this.#request,
+      metadata: this.#metadata,
+    };
+
+    // Redact sensitive data before sending
+    return redactSensitiveKeys(trace, this.#client.sensitiveKeys);
+  }
 }
 
-type OperationType = "OPEN_AI";
+type OpenAiOperationType = "openai.chat.completions.create";
+type PineconeOperationType = "pinecone.index.query";
+type OperationType = OpenAiOperationType | PineconeOperationType;
 
 interface Operation {
   traceId: string;

@@ -1,5 +1,6 @@
 import express from "express";
 import OpenAI from "openai";
+import { Pinecone } from "@pinecone-database/pinecone";
 
 import { obsyExpress } from "./express/index.js";
 import { ObsyClient } from "./core/index.js";
@@ -16,10 +17,21 @@ const openai = new OpenAI({
   baseURL: "https://api.groq.com/openai/v1",
 });
 
-const obsy = new ObsyClient("obsy-api-key", "obsy-project-id");
+// Initialize Pinecone client
+const pinecone = new Pinecone({
+  apiKey: process.env.PINECONE_API_KEY!,
+});
 
-// auto-instrument OpenAI completions for each request
-app.use(obsyExpress(obsy, openai));
+// Initialize Obsy client with local server URL
+const obsy = new ObsyClient({
+  apiKey: "test-api-key",
+  projectId: "test-project-id",
+  sensitiveKeys: undefined, // use default sensitive keys
+  sinkUrl: "http://localhost:8000/v1/projects/test-project-id/",
+});
+
+// auto-instrument OpenAI and Pinecone for each request
+app.use(obsyExpress({ client: obsy, openai, pinecone }));
 
 app.post("/chat", async (req, res) => {
   const response = await req.openai.chat.completions.create({
@@ -29,6 +41,38 @@ app.post("/chat", async (req, res) => {
   });
 
   res.send(response);
+});
+
+app.post("/search", async (req, res) => {
+  console.log(req.body);
+  const { query, indexName = "obsy" } = req.body;
+
+  if (!req.pinecone) {
+    res.status(400).json({ error: "Pinecone client not initialized" });
+    return;
+  }
+
+  console.log(query);
+
+  // generate embeddings docs: https://docs.pinecone.io/guides/inference/generate-embeddings
+  // const embeddings = await req.pinecone.inference.embed("llama-text-embed-v2", [query], {
+  //   inputType: "passage",
+  //   truncate: "END",
+  // });
+
+  // const vector =
+  //   embeddings.data[0].vectorType === "dense" ? embeddings.data[0].values : embeddings.data[0].sparseValues;
+
+  const vector = [0.1, 0.2, 0.3];
+
+  const index = req.pinecone.index(indexName);
+  const results = await index.query({
+    vector,
+    topK: 5,
+    includeMetadata: true,
+  });
+
+  res.json(results);
 });
 
 app.post("/chat-stream", async (req, res) => {
@@ -41,7 +85,6 @@ app.post("/chat-stream", async (req, res) => {
   });
 
   for await (const chunk of stream) {
-    console.log(chunk.choices[0]);
     res.write(JSON.stringify(chunk));
   }
 
