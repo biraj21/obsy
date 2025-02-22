@@ -78,7 +78,7 @@ app.post("/search", async (req, res) => {
 app.post("/chat-stream", async (req, res) => {
   console.log(req.trace.getContext());
 
-  const stream = await req.openai.chat.completions.create({
+  const stream = await openai.chat.completions.create({
     messages: [{ role: "user", content: "Hello" }],
     model: "llama3-8b-8192",
     stream: true,

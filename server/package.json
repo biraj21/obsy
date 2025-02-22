@@ -1,0 +1,23 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit",
+    "start": "npm run build && node dist/index.js",
+    "dev": "tsx watch --include \"src/**/*.ts\" src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "tsx": "^4.19.3"
+  },
+  "dependencies": {
+    "express": "^5.0.1",
+    "zod": "^3.24.2"
+  }
+}
