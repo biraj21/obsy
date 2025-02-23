@@ -1,11 +1,12 @@
-import type { AuthChangeEvent, Provider, Session, User } from "@supabase/supabase-js";
+import type { AuthChangeEvent, Provider, Session } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
 
+export type { User } from "@supabase/supabase-js";
+
+import env from "@/config/env";
+
 // create a single supabase client
-const supabase = createClient(
-  "https://yfsdeetwnbbabmiscepp.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlmc2RlZXR3bmJiYWJtaXNjZXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAyNzYzMzEsImV4cCI6MjA1NTg1MjMzMX0.Gn6ibNt4pyc_venvbgtolup79qCProJ2lf2EDpnilFo"
-);
+const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
 
 const signIn = async (provider: Provider) => {
   try {
@@ -63,6 +64,19 @@ export const getSession = async () => {
   return data.session;
 };
 
-export type { User };
+/**
+ * Get the access token from the current session.
+ * Throws an error if there is no session.
+ *
+ * @returns
+ */
+export const getAccessToken = async () => {
+  const session = await getSession();
+  if (!session) {
+    throw new Error("no session found");
+  }
+
+  return session.access_token;
+};
 
 export default supabase;
