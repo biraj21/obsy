@@ -78,13 +78,18 @@ export class ObsyClient {
 
   async sendTrace(trace: ObsyTrace) {
     try {
+      const traceJSON = trace.toJSON();
+      if (traceJSON.operations.length === 0) {
+        return;
+      }
+
       const response = await fetch(this.#sinkUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-api-key": this.#apiKey,
         },
-        body: JSON.stringify(trace.toJSON()),
+        body: JSON.stringify(traceJSON),
       });
 
       if (!response.ok) {
