@@ -9,16 +9,10 @@ export interface IApiKey {
 }
 
 const apiKeySchema = new Schema<IApiKey>({
-  key: {
-    type: String,
-    required: true,
-    unique: true,
-  },
+  key: { type: String, required: true, unique: true },
   label: { type: String, required: true },
   createdBy: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
 });
-
-apiKeySchema.index({ key: 1 });
 
 export const ApiKey = model<IApiKey>("ApiKey", apiKeySchema);
