@@ -19,7 +19,7 @@ export default function DashboardPage() {
             </div>
             <div className="card p-6 space-y-4">
               <h2 className="text-lg font-medium text-white">Performance</h2>
-              <p className="text-slate-400">Monitor your system's performance metrics.</p>
+              <p className="text-slate-400">{"Monitor your system's performance metrics."}</p>
             </div>
           </div>
         </main>

@@ -12,6 +12,11 @@ export interface ITrace {
     headers: Record<string, any>;
     body: Record<string, any>;
   };
+  response?: {
+    statusCode: number;
+    headers: Record<string, any>;
+    body: Record<string, any>;
+  };
   metadata?: Record<string, any>;
   project: Schema.Types.ObjectId;
 }
@@ -21,6 +26,7 @@ const traceSchema = new Schema<ITrace>({
   endedAt: { type: Date, required: true },
   duration: { type: Number, required: true },
   request: { type: Schema.Types.Mixed },
+  response: { type: Schema.Types.Mixed },
   metadata: { type: Schema.Types.Mixed },
   project: {
     type: Schema.Types.ObjectId,

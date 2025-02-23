@@ -46,6 +46,6 @@ body {
   }
 
   .card {
-    @apply bg-[#12141F]/50 border border-slate-800 rounded-lg;
+    @apply block bg-[#12141F]/50 border border-slate-800 rounded-lg;
   }
 }

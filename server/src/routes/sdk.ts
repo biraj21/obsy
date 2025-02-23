@@ -1,5 +1,6 @@
 import express from "express";
 import { z } from "zod";
+import { ObjectId } from "mongodb";
 
 import { BadRequestError } from "#src/helpers/error.js";
 
@@ -28,6 +29,12 @@ const HttpRequestSchema = z.object({
   body: z.record(z.any()),
 });
 
+const HttpResponseSchema = z.object({
+  statusCode: z.number(),
+  headers: z.record(z.any()),
+  body: z.record(z.any()).optional(),
+});
+
 const TraceSchema = z.object({
   id: z.string(),
   projectId: z.string(),
@@ -36,6 +43,7 @@ const TraceSchema = z.object({
   duration: z.number(),
   operations: z.array(OperationSchema),
   request: HttpRequestSchema.optional(),
+  response: HttpResponseSchema.optional(),
   metadata: z.record(z.any()).optional(),
 });
 
@@ -62,6 +70,7 @@ router.post("/:projectId/traces", async (req, res, next) => {
       project: projectId,
       duration: validatedTrace.duration,
       request: validatedTrace.request,
+      response: validatedTrace.response,
       metadata: validatedTrace.metadata,
     });
 

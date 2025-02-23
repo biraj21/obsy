@@ -3,6 +3,7 @@
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 import Button from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -17,6 +18,7 @@ interface Project {
 }
 
 export default function ProjectsPage() {
+  const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [newProjectName, setNewProjectName] = useState("");
 
@@ -69,6 +71,10 @@ export default function ProjectsPage() {
     }
   };
 
+  const handleProjectClick = (projectId: string) => {
+    router.push(`/dashboard/traces?projectId=${projectId}`);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="mb-8 space-y-6">
@@ -92,11 +98,16 @@ export default function ProjectsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {projects.map((project) => (
-          <Card key={project._id} className="bg-[#12141F]/50 border-slate-800">
+          <Card
+            key={project._id}
+            className="bg-[#12141F]/50 border-slate-800 cursor-pointer hover:bg-slate-800/50 transition-colors"
+            onClick={() => handleProjectClick(project._id)}
+          >
             <CardHeader>
               <CardTitle className="text-white">{project.name}</CardTitle>
             </CardHeader>
             <CardContent>
+              <p>{project._id}</p>
               <p className="text-sm text-slate-400">Created on {new Date(project.createdAt).toLocaleDateString()}</p>
             </CardContent>
           </Card>
