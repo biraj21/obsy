@@ -1,5 +1,6 @@
 "use client";
 
+import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -69,31 +70,42 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-4">Projects</h1>
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="mb-8 space-y-6">
+        <h1 className="text-2xl font-semibold text-white">Projects</h1>
         <form onSubmit={createProject} className="flex gap-4">
           <Input
             placeholder="Enter project name"
             value={newProjectName}
             onChange={(e) => setNewProjectName(e.target.value)}
-            className="max-w-sm"
+            className="max-w-sm bg-[#12141F]/50 border-slate-800 text-white placeholder:text-slate-500"
           />
-          <Button type="submit">Create Project</Button>
+          <Button
+            type="submit"
+            className="bg-gradient-to-r from-[#63E6BE] to-[#4EA8DE] hover:from-[#4EA8DE] hover:to-[#63E6BE] text-slate-900 font-medium"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Create Project
+          </Button>
         </form>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {projects.map((project) => (
-          <Card key={project._id}>
+          <Card key={project._id} className="bg-[#12141F]/50 border-slate-800">
             <CardHeader>
-              <CardTitle>{project.name}</CardTitle>
+              <CardTitle className="text-white">{project.name}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-500">Created on {new Date(project.createdAt).toLocaleDateString()}</p>
+              <p className="text-sm text-slate-400">Created on {new Date(project.createdAt).toLocaleDateString()}</p>
             </CardContent>
           </Card>
         ))}
+        {projects.length === 0 && (
+          <div className="col-span-full text-center py-12">
+            <p className="text-slate-400">No projects yet. Create your first project to get started.</p>
+          </div>
+        )}
       </div>
     </div>
   );

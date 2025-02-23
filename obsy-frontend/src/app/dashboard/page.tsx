@@ -1,38 +1,28 @@
 "use client";
 
 import ProtectedRoute from "@/components/ProtectedRoute";
-import Button from "@/components/ui/Button";
-import { useAuth } from "@/contexts/auth";
 
 export default function DashboardPage() {
-  const { user, signOut } = useAuth();
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      console.error("Failed to sign out:", error);
-    }
-  };
-
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-[#0A0B14] p-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
-            <div className="flex items-center gap-4">
-              <span className="text-slate-400">{user?.email}</span>
-              <Button
-                className="border border-slate-700 bg-transparent text-slate-400 hover:text-white hover:bg-slate-800"
-                onClick={handleSignOut}
-              >
-                Sign Out
-              </Button>
+      <div className="min-h-screen bg-[#0A0B14]">
+        <main className="max-w-7xl mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Example cards - replace with actual dashboard content */}
+            <div className="card p-6 space-y-4">
+              <h2 className="text-lg font-medium text-white">Overview</h2>
+              <p className="text-slate-400">Your dashboard overview and statistics will appear here.</p>
+            </div>
+            <div className="card p-6 space-y-4">
+              <h2 className="text-lg font-medium text-white">Recent Activity</h2>
+              <p className="text-slate-400">Track your recent activities and changes.</p>
+            </div>
+            <div className="card p-6 space-y-4">
+              <h2 className="text-lg font-medium text-white">Performance</h2>
+              <p className="text-slate-400">Monitor your system's performance metrics.</p>
             </div>
           </div>
-          {/* Add your dashboard content here */}
-        </div>
+        </main>
       </div>
     </ProtectedRoute>
   );

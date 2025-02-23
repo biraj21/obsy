@@ -3,8 +3,13 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0b14;
+  --foreground: #ffffff;
+  --card-bg: rgba(18, 20, 31, 0.5);
+  --accent-from: #63e6be;
+  --accent-to: #4ea8de;
+  --text-secondary: #94a3b8;
+  --border-color: #1e293b;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,11 +22,30 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-white font-semibold;
+  }
 }
 
 @layer components {
   .btn {
-    @apply inline-flex cursor-pointer items-center justify-center rounded-md px-4 py-2;
+    @apply inline-flex cursor-pointer items-center justify-center rounded-md px-4 py-2 transition-colors duration-200;
+  }
+
+  .btn-gradient {
+    @apply bg-gradient-to-r from-[#63E6BE] to-[#4EA8DE] hover:from-[#4EA8DE] hover:to-[#63E6BE] text-slate-900 font-medium border-0;
+  }
+
+  .card {
+    @apply bg-[#12141F]/50 border border-slate-800 rounded-lg;
   }
 }
