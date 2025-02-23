@@ -53,18 +53,23 @@ router.post("/:projectId/traces", async (req, res, next) => {
       projectId,
     });
 
+    console.log("validatedTrace", validatedTrace);
+
     // save trace to db
     const savedTrace = await Trace.create({
       startedAt: validatedTrace.startedAt,
       endedAt: validatedTrace.endedAt,
       project: projectId,
+      duration: validatedTrace.duration,
+      request: validatedTrace.request,
+      metadata: validatedTrace.metadata,
     });
 
     // save operations to db
     for (const op of validatedTrace.operations) {
       await Operation.create({
         ...op,
-        traceId: savedTrace._id,
+        trace: savedTrace._id,
       });
     }
 

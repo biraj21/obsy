@@ -4,8 +4,8 @@ export interface IApiKey {
   _id: Schema.Types.ObjectId;
   key: string;
   label: string;
+  createdBy: string;
   createdAt: Date;
-  userId: Schema.Types.ObjectId;
 }
 
 const apiKeySchema = new Schema<IApiKey>({
@@ -14,20 +14,11 @@ const apiKeySchema = new Schema<IApiKey>({
     required: true,
     unique: true,
   },
-  label: {
-    type: String,
-    required: true,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  userId: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-    index: true, // Index for faster queries by userId
-  },
+  label: { type: String, required: true },
+  createdBy: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
 });
+
+apiKeySchema.index({ key: 1 });
 
 export const ApiKey = model<IApiKey>("ApiKey", apiKeySchema);

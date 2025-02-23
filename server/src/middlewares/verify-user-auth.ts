@@ -1,17 +1,26 @@
-import type { User } from "@supabase/supabase-js";
 import { NextFunction, Request, Response } from "express";
+import type { JWTVerifyResult } from "jose";
+import { jwtVerify } from "jose";
 
-import supabase from "#src/config/supabase.js";
+import env from "#src/config/env.js";
 import { UnauthorizedError } from "#src/helpers/error.js";
 
 declare global {
   namespace Express {
     interface Request {
-      user?: User;
+      user?: {
+        id: string;
+        email?: string;
+      };
     }
   }
 }
 
+const secret = new TextEncoder().encode(env.SUPABASE_JWT_SECRET);
+
+/**
+ * Verifies the user's authentication token and adds the user's information to the request object.
+ */
 export const verifyUserAuth = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
@@ -21,13 +30,22 @@ export const verifyUserAuth = async (req: Request, res: Response, next: NextFunc
 
   const token = authHeader.split(" ")[1];
 
-  const { data, error } = await supabase.auth.getUser(token);
-
-  if (error || !data.user) {
+  let decoded: JWTVerifyResult;
+  try {
+    decoded = await jwtVerify(token, secret);
+  } catch (error) {
     throw new UnauthorizedError("invalid token");
   }
 
-  req.user = data.user;
+  const { sub, email } = decoded.payload;
+  if (typeof sub !== "string" || typeof email !== "string") {
+    throw new UnauthorizedError("invalid token");
+  }
+
+  req.user = {
+    id: sub,
+    email: email as string,
+  };
 
   next();
 };

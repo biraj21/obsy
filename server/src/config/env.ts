@@ -12,7 +12,9 @@ const envSchema = z.object({
 
   SUPABASE_URL: z.string().url(),
   SUPABASE_ANON_KEY: z.string(),
-  SUPABSE_JWT_SECRET: z.string(),
+  SUPABASE_JWT_SECRET: z.string(),
+
+  SDK_JWT_SECRET: z.string(),
 });
 
 const parseEnvVars = () => {
