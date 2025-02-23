@@ -3,7 +3,7 @@ export type AnyFunction = (...args: any[]) => any;
 export type OperationVendor = "openai" | "pinecone";
 
 type OpenAiOperationType = "openai.chat.completions.create";
-type PineconeOperationType = "pinecone.index.query";
+type PineconeOperationType = "pinecone.index.query" | "pinecone.index.namespace.query";
 export type OperationType = OpenAiOperationType | PineconeOperationType;
 
 /**

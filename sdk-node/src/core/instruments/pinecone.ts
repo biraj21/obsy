@@ -7,7 +7,9 @@ type IndexQueryType = typeof Index.prototype.query;
 /**
  * Instruments a Pinecone client to trace its operations.
  *
- * Supports `pinecone.index("<index-name>").query` as of now.
+ * Supports:
+ * - `pinecone.index("<index-name>").query`
+ * - `pinecone.index("<index-name>").namespace("<namespace-name>").query`
  */
 export function instrumentPinecone(client: Pinecone, opTracer: OpTracerFn<IndexQueryType>): Pinecone {
   // first create a proxy for the index method
@@ -30,6 +32,29 @@ export function instrumentPinecone(client: Pinecone, opTracer: OpTracerFn<IndexQ
         },
       });
 
+      // we also have to proxy index.namespace.query
+      const namespaceOrig = index.namespace.bind(index);
+      index.namespace = new Proxy(namespaceOrig, {
+        apply: (target, thisArg, args: any) => {
+          const ns = target.apply(thisArg, args);
+
+          // now we can proxy the query method on the returned index with namespace
+          const queryOrig = ns.query.bind(ns);
+          ns.query = new Proxy(queryOrig, {
+            apply: (target, thisArg, args: any) => {
+              return opTracer({
+                type: "pinecone.index.namespace.query",
+                fn: target,
+                thisArg,
+                args,
+                label: "pinecone-namespace-query",
+              });
+            },
+          });
+
+          return ns;
+        },
+      });
       return index;
     },
   });

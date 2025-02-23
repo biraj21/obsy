@@ -35,8 +35,13 @@ export function obsyExpress(options: ObsyExpressOptions) {
     req.trace = trace;
 
     // auto-end trace on response finish
-    res.on("finish", () => trace.end());
-
+    res.on("finish", () => {
+      trace.addResponse({
+        statusCode: res.statusCode,
+        headers: res.getHeaders(),
+      });
+      trace.end();
+    });
     trace.runInContext(next);
   };
 }

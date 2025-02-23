@@ -18,6 +18,12 @@ interface TraceHttpRequest {
   body: Record<string, any>;
 }
 
+interface TraceHttpResponse {
+  statusCode: number;
+  headers: Record<string, any>;
+  body?: string;
+}
+
 interface Operation {
   traceId: string;
   label: string;
@@ -43,6 +49,7 @@ export class ObsyTrace {
   #duration: number | null;
   #operations: Operation[];
   readonly #request?: TraceHttpRequest;
+  #response?: TraceHttpResponse;
   #metadata?: Record<string, any>;
   #opTracers: Record<OperationType, OpTracerFn<AnyFunction>>;
 
@@ -58,6 +65,7 @@ export class ObsyTrace {
     this.#opTracers = {
       "openai.chat.completions.create": this.recordOpenAiCompletion.bind(this),
       "pinecone.index.query": this.recordPineconeQuery.bind(this),
+      "pinecone.index.namespace.query": this.recordPineconeQuery.bind(this),
     };
   }
 
@@ -147,7 +155,14 @@ export class ObsyTrace {
   }
 
   async recordPineconeQuery<T>(op: Op<typeof Index.prototype.query>) {
-    const operation = this.createOperation(op.label, "pinecone", "pinecone.index.query", op.args);
+    // copy args to remove the big ass vector array from the trace payload
+    const argsCopyForSavingInDb = [...op.args];
+    argsCopyForSavingInDb[0] = {
+      ...argsCopyForSavingInDb[0],
+      vector: "<redacted>",
+    } as any;
+
+    const operation = this.createOperation(op.label, "pinecone", op.type, argsCopyForSavingInDb);
     operation.result = {
       value: undefined,
       usage: undefined,
@@ -168,6 +183,10 @@ export class ObsyTrace {
         throw operation.error;
       }
     }
+  }
+
+  addResponse(response: TraceHttpResponse) {
+    this.#response = response;
   }
 
   end() {
@@ -202,6 +221,7 @@ export class ObsyTrace {
       duration: this.#duration,
       operations: this.#operations,
       request: this.#request,
+      response: this.#response,
       metadata: this.#metadata,
     };
 
