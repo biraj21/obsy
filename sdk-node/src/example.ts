@@ -24,8 +24,8 @@ const pinecone = new Pinecone({
 
 // 1. initialize Obsy client with local server URL
 const obsy = new ObsyClient({
-  apiKey: "test-api-key",
-  projectId: "test-project-id",
+  apiKey: process.env.OBSY_API_KEY!,
+  projectId: "67baddf5b7e2b2053738bc60",
   sinkUrl: "http://localhost:8000",
 });
 
@@ -86,6 +86,6 @@ app.post("/chat-stream", async (req, res) => {
   res.end();
 });
 
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
+app.listen(4000, () => {
+  console.log("Server is running on port 4000");
 });
