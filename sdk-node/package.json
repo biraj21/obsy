@@ -7,7 +7,7 @@
     "build": "tsc",
     "check": "tsc --noEmit",
     "start": "npm run build && node dist/index.js",
-    "dev": "tsx watch --include \"src/**/*.ts\" src/example.ts"
+    "dev": "tsx watch --include \"src/**/*.ts\" ./example/index.ts"
   },
   "keywords": [],
   "author": "",

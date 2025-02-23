@@ -1,0 +1,42 @@
+FOSS United is a non-profit foundation established in 2020 with the mission to promote and strengthen the Free and Open Source Software (FOSS) ecosystem in India. Recognizing India's burgeoning tech industry, FOSS United aims to revitalize the spirit of hacking and open-source collaboration, which has been overshadowed by commercial software growth. citeturn0search0
+
+**Objectives and Initiatives**
+
+The foundation's primary goals include fostering a culture of innovation, building quality FOSS for public good, and evangelizing the use of FOSS across various sectors. To achieve these objectives, FOSS United has launched several programs:
+
+- **City Communities**: These local groups connect enthusiasts, providing a platform for collaboration and knowledge sharing. citeturn0search0
+
+- **FOSS Clubs**: Targeting students, these clubs encourage exploration and contribution to open-source projects, nurturing the next generation of FOSS contributors. citeturn0search0
+
+- **OASIS (Open-source Alliance for Social Impact and Sustainability)**: A coalition co-founded by FOSS United, OASIS aims to bridge the technology gap in the social sector by promoting the use of open-source solutions among non-profit organizations and communities. citeturn0search8
+
+**Flagship Events**
+
+FOSS United organizes prominent events to engage the community and promote FOSS adoption:
+
+- **IndiaFOSS**: An annual conference that brings together developers, policymakers, and enthusiasts to discuss advancements and challenges in the FOSS landscape. The 2024 edition featured talks on software, hardware, technology policy, and workshops on tools like OpenRefine. citeturn0search8
+
+- **FOSS Hack**: A hackathon designed to unite developers in creating or enhancing open-source projects. This event fosters innovation and provides a collaborative environment for participants to contribute to impactful FOSS initiatives. citeturn0search8
+
+**Collaborations and Community Engagement**
+
+FOSS United was initiated through a collaboration between Frappe, the publisher of ERPNext, and Zerodha, reflecting a strong community-industry partnership. The foundation actively invites more organizations to join the movement, aiming to build a diverse group of members and patrons committed to the FOSS cause. citeturn0search0
+
+Through its multifaceted approach—encompassing community building, educational programs, strategic events, and industry collaborations—FOSS United strives to create a robust and self-sustaining FOSS ecosystem in India, empowering individuals and organizations to harness the potential of open-source software for societal benefit.
+
+For more information and updates on their initiatives, visit the [FOSS United website](https://fossunited.org/). 
+
+FOSS United Foundation, established in 2020, was co-founded by **Kailash Nadh** and **Rushabh Mehta**. Kailash Nadh, the Chief Technology Officer at Zerodha, has been a hobbyist developer for over two decades, releasing his first open-source project in 2002. Rushabh Mehta is the Founder and CEO of Frappe, the company behind ERPNext, a widely-used open-source ERP system. citeturn0search0
+
+Initially, the foundation was spearheaded by **Vishal Arya**, who managed operations single-handedly. Over three and a half years, the team expanded to include 10 members, comprising interns, fellows, and both full-time and part-time staff. In April 2024, **Poruri Sai Rahul**, a dedicated volunteer and former Tech+Public Policy scholar, was appointed as the CEO and Director of FOSS United Foundation. Following this transition, Kailash Nadh and Rushabh Mehta stepped down as directors but continue to support the foundation as active community members. citeturn0search1
+
+The current leadership team includes:
+
+- **Poruri Sai Rahul**: CEO and Director
+- **Vishal Arya**: Program Director
+- **Ansh Arora**: Program and Partnerships Manager
+- **Harsh Tandiya**: Software Developer
+- **Jeswin Jose**: Graphic Designer
+- **Ruchika Bagde**: Diversity and Operations Manager
+
+This diverse team, supported by enthusiastic volunteers across India, is committed to advancing the Free and Open Source Software ecosystem in the country. citeturn0search0 
