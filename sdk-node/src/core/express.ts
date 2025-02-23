@@ -1,16 +1,11 @@
 import { NextFunction, Request, Response } from "express";
-import OpenAI from "openai";
-import { Pinecone } from "@pinecone-database/pinecone";
 
-import { ObsyClient, ObsyTrace } from "#src/core/index.js";
-import { createObservableOpenAI } from "#src/core/openai.js";
-import { createObservablePinecone } from "#src/core/pinecone.js";
+import { ObsyClient } from "./client.js";
+import { ObsyTrace } from "./trace.js";
 
 declare global {
   namespace Express {
     interface Request {
-      openai: OpenAI;
-      pinecone?: Pinecone;
       trace: ObsyTrace;
     }
   }
@@ -18,8 +13,6 @@ declare global {
 
 interface ObsyExpressOptions {
   client: ObsyClient;
-  openai: OpenAI;
-  pinecone?: Pinecone;
 }
 
 /**
@@ -40,15 +33,6 @@ export function obsyExpress(options: ObsyExpressOptions) {
     });
 
     req.trace = trace;
-
-    // auto-instrument OpenAI client for this request
-    req.openai = createObservableOpenAI(options.openai, trace);
-
-    // auto-instrument Pinecone client if provided
-    if (options.pinecone) {
-      req.pinecone = createObservablePinecone(options.pinecone, trace);
-      // req.pinecone = options.pinecone;
-    }
 
     // auto-end trace on response finish
     res.on("finish", () => trace.end());

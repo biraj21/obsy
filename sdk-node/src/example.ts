@@ -1,9 +1,8 @@
-import express from "express";
 import OpenAI from "openai";
+import express from "express";
 import { Pinecone } from "@pinecone-database/pinecone";
 
-import { obsyExpress } from "./express/index.js";
-import { ObsyClient } from "./core/index.js";
+import { ObsyClient, obsyExpress } from "./core/index.js";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -12,29 +11,32 @@ const app = express();
 
 app.use(express.json());
 
+// initialize OpenAI client
 const openai = new OpenAI({
   apiKey: process.env.GROQ_API_KEY,
   baseURL: "https://api.groq.com/openai/v1",
 });
 
-// Initialize Pinecone client
+// initialize Pinecone client
 const pinecone = new Pinecone({
   apiKey: process.env.PINECONE_API_KEY!,
 });
 
-// Initialize Obsy client with local server URL
+// 1. initialize Obsy client with local server URL
 const obsy = new ObsyClient({
   apiKey: "test-api-key",
   projectId: "test-project-id",
-  sensitiveKeys: undefined, // use default sensitive keys
-  sinkUrl: "http://localhost:8000/v1/projects/test-project-id/",
+  sinkUrl: "http://localhost:8000",
 });
 
-// auto-instrument OpenAI and Pinecone for each request
-app.use(obsyExpress({ client: obsy, openai, pinecone }));
+// 2. instrument OpenAI and Pinecone clients
+obsy.instrument(openai).instrument(pinecone);
+
+// 3. enable tracing for each request
+app.use(obsyExpress({ client: obsy }));
 
 app.post("/chat", async (req, res) => {
-  const response = await req.openai.chat.completions.create({
+  const response = await openai.chat.completions.create({
     messages: [{ role: "user", content: "Hello" }],
     model: "llama3-8b-8192",
     stream: false,
@@ -46,11 +48,6 @@ app.post("/chat", async (req, res) => {
 app.post("/search", async (req, res) => {
   console.log(req.body);
   const { query, indexName = "obsy" } = req.body;
-
-  if (!req.pinecone) {
-    res.status(400).json({ error: "Pinecone client not initialized" });
-    return;
-  }
 
   console.log(query);
 
@@ -65,7 +62,7 @@ app.post("/search", async (req, res) => {
 
   const vector = [0.1, 0.2, 0.3];
 
-  const index = req.pinecone.index(indexName);
+  const index = pinecone.index(indexName);
   const results = await index.query({
     vector,
     topK: 5,
@@ -76,8 +73,6 @@ app.post("/search", async (req, res) => {
 });
 
 app.post("/chat-stream", async (req, res) => {
-  console.log(req.trace.getContext());
-
   const stream = await openai.chat.completions.create({
     messages: [{ role: "user", content: "Hello" }],
     model: "llama3-8b-8192",
