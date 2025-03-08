@@ -28,6 +28,9 @@ interface Operation {
   startedAt: number;
   endedAt: number;
   duration: number;
+  error?: {
+    message: string;
+  };
 }
 
 interface Trace {
@@ -54,7 +57,16 @@ function OperationSummary({ operation }: { operation: Operation }) {
   // Get a summary of the request
   const getRequestSummary = () => {
     if (operation.vendor === "openai") {
-      return operation.inputs?.[0]?.messages?.[0]?.content || "No content";
+      const messages = operation.inputs?.[0]?.messages;
+      if (!messages?.length) return "No messages";
+
+      // Show the last message which is usually the user's message
+      const lastMessage = messages[messages.length - 1];
+      return `${lastMessage.role}: ${lastMessage.content}`;
+    }
+    if (operation.vendor === "pinecone") {
+      const topK = operation.inputs?.[0]?.topK;
+      return `top_k: ${topK}`;
     }
     return JSON.stringify(operation.inputs?.[0] || {});
   };
@@ -74,8 +86,16 @@ function OperationSummary({ operation }: { operation: Operation }) {
           {operation.vendor}
         </span>
         <span className="text-slate-400">{operation.label}</span>
+        {operation.vendor === "openai" && operation.inputs?.[0]?.model && (
+          <span className="text-xs text-slate-500">{operation.inputs[0].model}</span>
+        )}
+        {operation.error && <span className="px-2 py-0.5 rounded text-xs bg-red-900/50 text-red-400">Failed</span>}
       </div>
-      <div className="mt-1 text-xs text-slate-500 truncate max-w-xl">{getRequestSummary()}</div>
+      {operation.error ? (
+        <div className="mt-1 text-xs text-red-400 truncate max-w-xl">{operation.error.message}</div>
+      ) : (
+        <div className="mt-1 text-xs text-slate-500 truncate max-w-xl">{getRequestSummary()}</div>
+      )}
     </div>
   );
 }

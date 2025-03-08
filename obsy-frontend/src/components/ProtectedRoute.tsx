@@ -1,8 +1,10 @@
 "use client";
 
-import { useAuth } from "@/contexts/auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+
+import { useAuth } from "@/contexts/auth";
+import Loader from "./ui/Loader";
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -15,11 +17,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   }, [user, loading, router]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#63E6BE]"></div>
-      </div>
-    );
+    return <Loader />;
   }
 
   if (!user) {

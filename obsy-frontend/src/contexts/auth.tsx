@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 
+import Loader from "@/components/ui/Loader";
 import type { User } from "@/config/auth";
 import { getSession, onAuthStateChange, signInWithGithub, signOut } from "@/config/auth";
 
@@ -41,6 +42,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return <AuthContext.Provider value={{ user, loading, signInWithGithub, signOut }}>{children}</AuthContext.Provider>;
 }
