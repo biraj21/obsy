@@ -102,7 +102,6 @@ export class ObsyTrace {
       return result;
     } catch (err) {
       operation.error = err;
-      throw err;
     } finally {
       operation.endedAt = Date.now();
       operation.duration = operation.endedAt - operation.startedAt;

@@ -9,7 +9,7 @@ const router = express.Router();
 // get traces by project ID
 router.get("/by-project/:projectId", async (req, res) => {
   const { projectId } = req.params;
-  const traces = await Trace.find({ project: projectId });
+  const traces = await Trace.find({ project: projectId }).sort({ startedAt: -1 });
 
   const updatedTraces = [];
 

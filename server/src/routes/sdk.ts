@@ -61,8 +61,6 @@ router.post("/:projectId/traces", async (req, res, next) => {
       projectId,
     });
 
-    console.log("validatedTrace", validatedTrace);
-
     // save trace to db
     const savedTrace = await Trace.create({
       startedAt: validatedTrace.startedAt,
@@ -81,10 +79,6 @@ router.post("/:projectId/traces", async (req, res, next) => {
         trace: savedTrace._id,
       });
     }
-
-    // TODO: Store the trace in a database
-    // For now, we'll just log it
-    console.log("Received trace:", JSON.stringify(validatedTrace, null, 2));
 
     res.status(201).json({
       status: "success",
